@@ -1,0 +1,182 @@
+#!/bin/bash
+
+if [[ $# == 0 ]]; then
+	echo Please Provide Parameters
+	exit 1
+fi
+
+for ((i=1;i<=$#;i++))
+do
+	if [ ${!i} = "-s" ]	
+	then ((i++)) 
+		fsize=${!i}
+	elif [ ${!i} = "-t" ]
+	then ((i++))
+		target=${!i}
+	elif [ ${!i} = "-d" ]
+	then ((i++))
+		dest=${!i}
+	else 
+		extlist="$extlist ${!i}"
+	fi
+done
+
+
+RemoveDirectory () {
+		
+	if [ $target ]; then
+		cd $target
+	elif [ $dest ]; then
+		cd $dest
+	fi	
+                tar -cvf myArchive.tar myArchive
+                
+		rm -r myArchive
+                ls -l
+}
+
+if [ $target ] && [ $dest ]
+	then 
+		echo size : $fsize
+		echo target : $target
+		for ext in $extlist ; do
+		 	#echo $ext
+			if [ ! $fsize ]; then
+		 		find $target -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+ 	                        echo $file
+        	                cd $dest
+                	        if [ ! -d myArchive ]; then
+                        	        mkdir myArchive
+                        	fi
+                        	cd ..
+                        	mv "$file" $dest"/myArchive"
+
+                        	done
+				#if [[ $file ]]; then
+					RemoveDirectory
+				#fi
+
+			else 	
+				
+				find $target -size +$fsize -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+				echo $file
+				cd $dest
+				if [ ! -d myArchive ]; then
+					mkdir myArchive
+				fi
+				cd ..
+				mv "$file" $dest"/myArchive"
+			
+			 	done
+		
+				RemoveDirectory
+			fi
+		done
+												
+	elif [ $target ]
+	then
+		 echo target Condition : $target
+                for ext in $extlist ; do
+                        if [ ! $fsize ]; then
+                                find $target -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+                                
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+				
+                                mv "$file" myArchive
+
+                                done
+                               
+                                RemoveDirectory
+                               
+                        else
+
+                                find $target -size +$fsize -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+				
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+                                
+                                mv "$file" myArchive
+
+                                done
+
+                                RemoveDirectory
+                        fi
+                done
+	 elif [ $dest ]
+         then
+                echo Destination Condition : $dest
+                for ext in $extlist ; do
+                        if [ ! $fsize ]; then
+                                find . -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+                                cd $dest
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+                                cd ..
+                                mv "$file" $dest"/myArchive"
+
+                                done
+
+                                RemoveDirectory
+
+                        else
+
+                                find . -size +$fsize -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+                                cd $dest
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+                                cd ..
+                                mv "$file" $dest"/myArchive"
+
+                                done
+
+                                RemoveDirectory
+                        fi
+                done
+	else
+	
+	    for ext in $extlist ; do
+                  if [ ! $fsize ]; then
+                       		find . -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+                                
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+                                
+                                mv "$file" myArchive
+
+                                done
+
+                                RemoveDirectory
+
+                        else
+
+                                find . -size +$fsize -type f -name \*.$ext -print0 | while IFS= read -r -d '' file; do
+                                echo $file
+                               
+                                if [ ! -d myArchive ]; then
+                                        mkdir myArchive
+                                fi
+                               
+                                mv "$file" myArchive
+
+                                done
+
+                                RemoveDirectory
+                    fi
+                done
+
+
+fi
+
+#echo destination : $dest
+#echo Extensions : $extlist
